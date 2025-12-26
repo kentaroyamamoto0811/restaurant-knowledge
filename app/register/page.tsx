@@ -41,11 +41,11 @@ export default function Register() {
         createdAt: new Date().toISOString(),
       }
 
-      // APIに送信を試みる
+      // APIに送信を試みる（UTF-8エンコーディングを明示）
       const response = await fetch('/api/restaurants', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=utf-8',
         },
         body: JSON.stringify(formData),
       })

@@ -26,7 +26,11 @@ export default function Home() {
 
   const fetchRestaurants = async () => {
     try {
-      const response = await fetch('/api/restaurants')
+      const response = await fetch('/api/restaurants', {
+        headers: {
+          'Accept': 'application/json; charset=utf-8',
+        },
+      })
       if (response.ok) {
         const data = await response.json()
         setRestaurants(data)

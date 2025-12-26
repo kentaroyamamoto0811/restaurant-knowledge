@@ -23,12 +23,20 @@ export async function GET() {
   try {
     // ファイルが存在しない場合は空配列を返す
     if (!fs.existsSync(dataFilePath)) {
-      return NextResponse.json([])
+      return NextResponse.json([], {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+      })
     }
 
-    const fileData = fs.readFileSync(dataFilePath, 'utf-8')
+    const fileData = fs.readFileSync(dataFilePath, { encoding: 'utf8' })
     const restaurants = JSON.parse(fileData)
-    return NextResponse.json(restaurants)
+    return NextResponse.json(restaurants, {
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+    })
   } catch (error) {
     console.error('データ読み込みエラー:', error)
     return NextResponse.json(
@@ -51,10 +59,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 既存データを読み込む
+    // 既存データを読み込む（UTF-8エンコーディングを明示）
     let restaurants: Restaurant[] = []
     if (fs.existsSync(dataFilePath)) {
-      const fileData = fs.readFileSync(dataFilePath, 'utf-8')
+      const fileData = fs.readFileSync(dataFilePath, { encoding: 'utf8' })
       restaurants = JSON.parse(fileData)
     }
 
@@ -76,10 +84,15 @@ export async function POST(request: NextRequest) {
     // データを追加
     restaurants.push(newRestaurant)
 
-    // ファイルに保存
-    fs.writeFileSync(dataFilePath, JSON.stringify(restaurants, null, 2), 'utf-8')
+    // ファイルに保存（UTF-8エンコーディングを明示）
+    fs.writeFileSync(dataFilePath, JSON.stringify(restaurants, null, 2), { encoding: 'utf8' })
 
-    return NextResponse.json(newRestaurant, { status: 201 })
+    return NextResponse.json(newRestaurant, {
+      status: 201,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+    })
   } catch (error) {
     console.error('データ保存エラー:', error)
     return NextResponse.json(
