@@ -30,9 +30,28 @@ export default function Home() {
       if (response.ok) {
         const data = await response.json()
         setRestaurants(data)
+        // ローカルストレージにも保存（バックアップ）
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('restaurants', JSON.stringify(data))
+        }
+      } else {
+        // APIが失敗した場合、ローカルストレージから読み込む
+        if (typeof window !== 'undefined') {
+          const localData = localStorage.getItem('restaurants')
+          if (localData) {
+            setRestaurants(JSON.parse(localData))
+          }
+        }
       }
     } catch (error) {
       console.error('店舗データの取得に失敗しました:', error)
+      // エラー時もローカルストレージから読み込む
+      if (typeof window !== 'undefined') {
+        const localData = localStorage.getItem('restaurants')
+        if (localData) {
+          setRestaurants(JSON.parse(localData))
+        }
+      }
     }
   }
 

@@ -35,6 +35,13 @@ export default function Register() {
     setIsSubmitting(true)
 
     try {
+      const newRestaurant = {
+        id: Date.now().toString(),
+        ...formData,
+        createdAt: new Date().toISOString(),
+      }
+
+      // APIに送信を試みる
       const response = await fetch('/api/restaurants', {
         method: 'POST',
         headers: {
@@ -43,15 +50,42 @@ export default function Register() {
         body: JSON.stringify(formData),
       })
 
+      // ローカルストレージにも保存（フォールバック）
+      if (typeof window !== 'undefined') {
+        const existingData = localStorage.getItem('restaurants')
+        const restaurants = existingData ? JSON.parse(existingData) : []
+        restaurants.push(newRestaurant)
+        localStorage.setItem('restaurants', JSON.stringify(restaurants))
+      }
+
       if (response.ok) {
+        router.push('/')
+        router.refresh()
+      } else {
+        // APIが失敗してもローカルストレージには保存済み
+        alert('登録しました（ローカルストレージに保存）。ページを更新してください。')
+        router.push('/')
+        router.refresh()
+      }
+    } catch (error) {
+      console.error('登録エラー:', error)
+      // エラー時もローカルストレージに保存
+      if (typeof window !== 'undefined') {
+        const newRestaurant = {
+          id: Date.now().toString(),
+          ...formData,
+          createdAt: new Date().toISOString(),
+        }
+        const existingData = localStorage.getItem('restaurants')
+        const restaurants = existingData ? JSON.parse(existingData) : []
+        restaurants.push(newRestaurant)
+        localStorage.setItem('restaurants', JSON.stringify(restaurants))
+        alert('登録しました（ローカルストレージに保存）。ページを更新してください。')
         router.push('/')
         router.refresh()
       } else {
         alert('登録に失敗しました。もう一度お試しください。')
       }
-    } catch (error) {
-      console.error('登録エラー:', error)
-      alert('登録に失敗しました。もう一度お試しください。')
     } finally {
       setIsSubmitting(false)
     }
