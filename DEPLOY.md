@@ -7,7 +7,9 @@
 
 ## デプロイ手順
 
-### ステップ1: GitHubリポジトリの作成とプッシュ
+### ステップ1: GitHubリポジトリの作成とプッシュ（VercelでGitHub連携する場合）
+
+**注意**: VercelでGitHubリポジトリを連携する場合のみ必要です。Vercel CLIや手動アップロードでもデプロイ可能です。
 
 1. GitHubで新しいリポジトリを作成
 2. 以下のコマンドを実行：
@@ -19,19 +21,28 @@ git branch -M main
 git push -u origin main
 ```
 
-### ステップ2: Vercelでのデプロイ
+**Gitリモートの設定は後で行っても問題ありません。** まずはローカルでGitリポジトリが初期化されているので、後からGitHubにプッシュできます。
+
+### ステップ2: Vercelサイト上でのデプロイ
 
 1. [Vercel](https://vercel.com)にアクセス
 2. 「Sign Up」または「Log In」をクリック
-3. GitHubアカウントでログイン
+3. GitHubアカウントでログイン（推奨）またはメールアドレスで登録
 4. ダッシュボードで「Add New Project」をクリック
-5. 作成したGitHubリポジトリを選択
-6. プロジェクト設定を確認：
-   - Framework Preset: Next.js
-   - Root Directory: `./`
-   - Build Command: `npm run build`
-   - Output Directory: `.next`
-7. 「Deploy」をクリック
+
+**GitHubリポジトリを連携する場合:**
+   - 作成したGitHubリポジトリを選択
+   - プロジェクト設定を確認：
+     - Framework Preset: Next.js（自動検出されるはず）
+     - Root Directory: `./`（デフォルト）
+     - Build Command: `npm run build`（自動設定）
+     - Output Directory: `.next`（自動設定）
+   - 「Deploy」をクリック
+
+**手動でアップロードする場合:**
+   - 「Import Git Repository」の代わりに「Upload」を選択
+   - `restaurant-knowledge`フォルダをZIPで圧縮してアップロード
+   - プロジェクト設定を確認して「Deploy」をクリック
 
 ### ステップ3: 環境変数の設定（オプション）
 
@@ -67,8 +78,10 @@ Googleマップを表示する場合のみ必要：
 
 ### データが保存されない場合
 
-- Vercelは読み取り専用ファイルシステムのため、本番環境では別のデータ保存方法（データベースなど）が必要です
-- 開発環境では `data/restaurants.json` に保存されますが、本番環境では別途対応が必要です
+- **現在の実装では、ローカルストレージ（ブラウザ側）にデータが保存されます**
+- Vercelの本番環境ではファイルシステムへの書き込みができないため、API経由での保存はできません
+- ただし、ローカルストレージ機能により、各ユーザーのブラウザにデータが保存されるため、基本的な動作は可能です
+- データを永続化したい場合は、外部データベースの導入を検討してください
 
 ## 本番環境でのデータ保存について
 
