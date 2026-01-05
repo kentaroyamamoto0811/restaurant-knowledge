@@ -292,9 +292,12 @@ export default function Register() {
               name="urlLink"
               value={formData.urlLink}
               onChange={handleChange}
-              placeholder="https://..."
+              placeholder="例: https://tabelog.com/... や https://www.instagram.com/..."
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
+            <p className="mt-1 text-xs text-gray-500">
+              食べログ、Instagram、その他の外部リンクを入力できます。サムネイル画像が自動的に表示されます。
+            </p>
           </div>
 
           <div className="flex gap-4 pt-4">

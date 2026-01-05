@@ -17,12 +17,28 @@ interface Restaurant {
   createdAt: string
 }
 
+interface RestaurantWithThumbnail extends Restaurant {
+  thumbnailUrl?: string | null
+}
+
 export default function Home() {
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([])
+  const [restaurants, setRestaurants] = useState<RestaurantWithThumbnail[]>([])
+  const [thumbnails, setThumbnails] = useState<Record<string, string | null>>({})
 
   useEffect(() => {
     fetchRestaurants()
   }, [])
+
+  useEffect(() => {
+    // サムネイル画像を取得
+    restaurants.forEach((restaurant) => {
+      const url = restaurant.shopUrl || restaurant.urlLink
+      if (url && !thumbnails[restaurant.id]) {
+        fetchThumbnail(restaurant.id, url)
+      }
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restaurants])
 
   const fetchRestaurants = async () => {
     try {
@@ -59,6 +75,21 @@ export default function Home() {
     }
   }
 
+  const fetchThumbnail = async (id: string, url: string) => {
+    try {
+      const response = await fetch(`/api/og-image?url=${encodeURIComponent(url)}`)
+      if (response.ok) {
+        const data = await response.json()
+        setThumbnails((prev) => ({
+          ...prev,
+          [id]: data.imageUrl,
+        }))
+      }
+    } catch (error) {
+      console.error('サムネイル取得エラー:', error)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
@@ -88,10 +119,25 @@ export default function Home() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {restaurants.map((restaurant) => (
-              <div key={restaurant.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
-                <div className="p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-2">{restaurant.name}</h2>
+            {restaurants.map((restaurant) => {
+              const thumbnailUrl = thumbnails[restaurant.id]
+              return (
+                <div key={restaurant.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden">
+                  {thumbnailUrl && (
+                    <div className="w-full h-48 bg-gray-200 overflow-hidden">
+                      <img
+                        src={thumbnailUrl}
+                        alt={restaurant.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // 画像読み込みエラー時は非表示
+                          e.currentTarget.style.display = 'none'
+                        }}
+                      />
+                    </div>
+                  )}
+                  <div className="p-6">
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">{restaurant.name}</h2>
                   <div className="space-y-2 text-sm text-gray-600">
                     <p>
                       <span className="font-medium">カテゴリ:</span> {restaurant.category}
@@ -133,9 +179,10 @@ export default function Home() {
                       </a>
                     )}
                   </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </main>
