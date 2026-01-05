@@ -1,10 +1,14 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function Register() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const editId = searchParams.get('id')
+  const isEditMode = !!editId
+
   const [formData, setFormData] = useState({
     name: '',
     category: '',
@@ -18,7 +22,46 @@ export default function Register() {
     author: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [mapUrl, setMapUrl] = useState('')
+
+  // 編集モードの場合、既存データを読み込む
+  useEffect(() => {
+    if (isEditMode && editId) {
+      loadRestaurantData(editId)
+    }
+  }, [isEditMode, editId])
+
+  const loadRestaurantData = async (id: string) => {
+    setIsLoading(true)
+    try {
+      const response = await fetch(`/api/restaurants/${id}`)
+      if (response.ok) {
+        const data = await response.json()
+        setFormData({
+          name: data.name || '',
+          category: data.category || '',
+          nearestStation: data.nearestStation || '',
+          address: data.address || '',
+          budget: data.budget || '',
+          phone: data.phone || '',
+          shopUrl: data.shopUrl || '',
+          comment: data.comment || '',
+          urlLink: data.urlLink || '',
+          author: data.author || '',
+        })
+      } else {
+        alert('データの読み込みに失敗しました')
+        router.push('/')
+      }
+    } catch (error) {
+      console.error('データ読み込みエラー:', error)
+      alert('データの読み込みに失敗しました')
+      router.push('/')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -44,8 +87,11 @@ export default function Register() {
       }
 
       // APIに送信を試みる（UTF-8エンコーディングを明示）
-      const response = await fetch('/api/restaurants', {
-        method: 'POST',
+      const url = isEditMode ? `/api/restaurants/${editId}` : '/api/restaurants'
+      const method = isEditMode ? 'PUT' : 'POST'
+      
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
         },
@@ -105,12 +151,19 @@ export default function Register() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">新しいお店を登録</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {isEditMode ? 'お店の情報を編集' : '新しいお店を登録'}
+          </h1>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
+        {isLoading ? (
+          <div className="bg-white rounded-lg shadow p-8 text-center">
+            <p className="text-gray-500">データを読み込んでいます...</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
               店名 <span className="text-red-500">*</span>
@@ -327,7 +380,7 @@ export default function Register() {
               disabled={isSubmitting}
               className="flex-1 bg-blue-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
-              {isSubmitting ? '登録中...' : '登録する'}
+              {isSubmitting ? (isEditMode ? '更新中...' : '登録中...') : (isEditMode ? '更新する' : '登録する')}
             </button>
             <button
               type="button"
@@ -338,6 +391,7 @@ export default function Register() {
             </button>
           </div>
         </form>
+        )}
       </main>
     </div>
   )
