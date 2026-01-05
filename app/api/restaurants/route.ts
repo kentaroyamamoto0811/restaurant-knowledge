@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
+import { getGitHubFile, updateGitHubFile } from '@/lib/github'
 
 const dataFilePath = path.join(process.cwd(), 'data', 'restaurants.json')
+
+// GitHub設定（環境変数から取得）
+const GITHUB_OWNER = process.env.GITHUB_OWNER || 'kentaroyamamoto0811'
+const GITHUB_REPO = process.env.GITHUB_REPO || 'restaurant-knowledge'
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || ''
+const DATA_FILE_PATH = 'data/restaurants.json'
+
+// GitHub APIを使用するかどうか（トークンが設定されている場合）
+const useGitHub = !!GITHUB_TOKEN
 
 interface Restaurant {
   id: string
@@ -21,17 +31,27 @@ interface Restaurant {
 // GET: 店舗一覧を取得
 export async function GET() {
   try {
-    // ファイルが存在しない場合は空配列を返す
-    if (!fs.existsSync(dataFilePath)) {
-      return NextResponse.json([], {
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-        },
-      })
+    let restaurants: Restaurant[] = []
+
+    if (useGitHub) {
+      // GitHub APIから取得
+      const result = await getGitHubFile(
+        GITHUB_OWNER,
+        GITHUB_REPO,
+        DATA_FILE_PATH,
+        GITHUB_TOKEN
+      )
+      if (result) {
+        restaurants = result.content
+      }
+    } else {
+      // ローカルファイルから取得（開発環境）
+      if (fs.existsSync(dataFilePath)) {
+        const fileData = fs.readFileSync(dataFilePath, { encoding: 'utf8' })
+        restaurants = JSON.parse(fileData)
+      }
     }
 
-    const fileData = fs.readFileSync(dataFilePath, { encoding: 'utf8' })
-    const restaurants = JSON.parse(fileData)
     return NextResponse.json(restaurants, {
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
@@ -59,11 +79,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 既存データを読み込む（UTF-8エンコーディングを明示）
+    // 既存データを読み込む
     let restaurants: Restaurant[] = []
-    if (fs.existsSync(dataFilePath)) {
-      const fileData = fs.readFileSync(dataFilePath, { encoding: 'utf8' })
-      restaurants = JSON.parse(fileData)
+    let fileSha = ''
+
+    if (useGitHub) {
+      // GitHub APIから取得
+      const result = await getGitHubFile(
+        GITHUB_OWNER,
+        GITHUB_REPO,
+        DATA_FILE_PATH,
+        GITHUB_TOKEN
+      )
+      if (result) {
+        restaurants = result.content
+        fileSha = result.sha
+      }
+    } else {
+      // ローカルファイルから取得（開発環境）
+      if (fs.existsSync(dataFilePath)) {
+        const fileData = fs.readFileSync(dataFilePath, { encoding: 'utf8' })
+        restaurants = JSON.parse(fileData)
+      }
     }
 
     // 新しい店舗データを作成
@@ -84,8 +121,28 @@ export async function POST(request: NextRequest) {
     // データを追加
     restaurants.push(newRestaurant)
 
-    // ファイルに保存（UTF-8エンコーディングを明示）
-    fs.writeFileSync(dataFilePath, JSON.stringify(restaurants, null, 2), { encoding: 'utf8' })
+    // 保存
+    if (useGitHub) {
+      // GitHub APIで更新
+      const success = await updateGitHubFile(
+        GITHUB_OWNER,
+        GITHUB_REPO,
+        DATA_FILE_PATH,
+        restaurants,
+        fileSha,
+        GITHUB_TOKEN,
+        `Add restaurant: ${body.name}`
+      )
+      if (!success) {
+        return NextResponse.json(
+          { error: 'GitHubへの保存に失敗しました' },
+          { status: 500 }
+        )
+      }
+    } else {
+      // ローカルファイルに保存（開発環境）
+      fs.writeFileSync(dataFilePath, JSON.stringify(restaurants, null, 2), { encoding: 'utf8' })
+    }
 
     return NextResponse.json(newRestaurant, {
       status: 201,

@@ -86,7 +86,18 @@ Googleマップを表示するには、Google Maps Embed APIのキーが必要�
 
 ## データ管理
 
-店舗データは `data/restaurants.json` ファイルに保存されます。このファイルはGitで管理されるため、バージョン管理が可能です。
+### 複数ユーザーでのデータ共有
+
+このアプリは、**GitHub API**を使用してリポジトリの `data/restaurants.json` ファイルを直接更新します。これにより、複数のユーザーが入力したデータを共有できます。
+
+**設定方法**: 詳細は [SETUP_GITHUB_API.md](./SETUP_GITHUB_API.md) を参照してください。
+
+### 動作モード
+
+- **GitHub APIモード**（本番環境・推奨）: GitHub Personal Access Tokenを設定すると、GitHub API経由でデータを保存・共有
+- **ローカルファイルモード**（開発環境）: トークン未設定時は、ローカルの `data/restaurants.json` に保存
+
+店舗データは `data/restaurants.json` ファイルに保存され、Gitで管理されるため、バージョン管理が可能です。
 
 ## 開発時の注意事項
 
