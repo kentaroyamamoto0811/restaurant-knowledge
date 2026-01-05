@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import StarRating from '@/components/StarRating'
 
 function RegisterForm() {
   const router = useRouter()
@@ -20,6 +21,7 @@ function RegisterForm() {
     comment: '',
     urlLink: '',
     author: '',
+    rating: 0,
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -49,6 +51,7 @@ function RegisterForm() {
           comment: data.comment || '',
           urlLink: data.urlLink || '',
           author: data.author || '',
+          rating: data.rating || 0,
         })
       } else {
         alert('データの読み込みに失敗しました')
@@ -371,6 +374,20 @@ function RegisterForm() {
             />
             <p className="mt-1 text-xs text-gray-500">
               未入力の場合は「匿名」として表示されます。
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              評価
+            </label>
+            <StarRating
+              rating={formData.rating}
+              onRatingChange={(rating) => setFormData(prev => ({ ...prev, rating }))}
+              size="lg"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              クリックして星を選択してください（1〜5段階）
             </p>
           </div>
 

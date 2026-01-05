@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import StarRating from '@/components/StarRating'
 
 interface Restaurant {
   id: string
@@ -15,6 +16,7 @@ interface Restaurant {
   comment: string
   urlLink: string
   author: string
+  rating: number
   createdAt: string
 }
 
@@ -194,9 +196,14 @@ export default function Home() {
                         </button>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500 mb-2">
-                      投稿者: {restaurant.author || '匿名'}
-                    </p>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-xs text-gray-500">
+                        投稿者: {restaurant.author || '匿名'}
+                      </p>
+                      {restaurant.rating > 0 && (
+                        <StarRating rating={restaurant.rating} readonly size="sm" />
+                      )}
+                    </div>
                   <div className="space-y-2 text-sm text-gray-600">
                     <p>
                       <span className="font-medium">カテゴリ:</span> {restaurant.category}

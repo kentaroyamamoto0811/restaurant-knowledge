@@ -26,6 +26,7 @@ interface Restaurant {
   comment: string
   urlLink: string
   author: string
+  rating: number
   createdAt: string
 }
 
@@ -117,6 +118,7 @@ export async function POST(request: NextRequest) {
       comment: body.comment || '',
       urlLink: body.urlLink || '',
       author: body.author || '匿名',
+      rating: body.rating ? Number(body.rating) : 0,
       createdAt: new Date().toISOString(),
     }
 
