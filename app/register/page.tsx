@@ -15,6 +15,7 @@ export default function Register() {
     shopUrl: '',
     comment: '',
     urlLink: '',
+    author: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [mapUrl, setMapUrl] = useState('')
@@ -38,6 +39,7 @@ export default function Register() {
       const newRestaurant = {
         id: Date.now().toString(),
         ...formData,
+        author: formData.author || '匿名',
         createdAt: new Date().toISOString(),
       }
 
@@ -74,6 +76,7 @@ export default function Register() {
         const newRestaurant = {
           id: Date.now().toString(),
           ...formData,
+          author: formData.author || '匿名',
           createdAt: new Date().toISOString(),
         }
         const existingData = localStorage.getItem('restaurants')
@@ -297,6 +300,24 @@ export default function Register() {
             />
             <p className="mt-1 text-xs text-gray-500">
               食べログ、Instagram、その他の外部リンクを入力できます。サムネイル画像が自動的に表示されます。
+            </p>
+          </div>
+
+          <div>
+            <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-1">
+              投稿者名
+            </label>
+            <input
+              type="text"
+              id="author"
+              name="author"
+              value={formData.author}
+              onChange={handleChange}
+              placeholder="例: 山田太郎"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              未入力の場合は「匿名」として表示されます。
             </p>
           </div>
 

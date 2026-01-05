@@ -14,6 +14,7 @@ interface Restaurant {
   shopUrl: string
   comment: string
   urlLink: string
+  author: string
   createdAt: string
 }
 
@@ -90,6 +91,37 @@ export default function Home() {
     }
   }
 
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`「${name}」を削除してもよろしいですか？`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/restaurants/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        // 一覧を再取得
+        fetchRestaurants()
+        // ローカルストレージからも削除
+        if (typeof window !== 'undefined') {
+          const localData = localStorage.getItem('restaurants')
+          if (localData) {
+            const restaurants = JSON.parse(localData)
+            const updated = restaurants.filter((r: Restaurant) => r.id !== id)
+            localStorage.setItem('restaurants', JSON.stringify(updated))
+          }
+        }
+      } else {
+        alert('削除に失敗しました')
+      }
+    } catch (error) {
+      console.error('削除エラー:', error)
+      alert('削除に失敗しました')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
@@ -137,7 +169,21 @@ export default function Home() {
                     </div>
                   )}
                   <div className="p-6">
-                    <h2 className="text-xl font-bold text-gray-900 mb-2">{restaurant.name}</h2>
+                    <div className="flex justify-between items-start mb-2">
+                      <h2 className="text-xl font-bold text-gray-900">{restaurant.name}</h2>
+                      <button
+                        onClick={() => handleDelete(restaurant.id, restaurant.name)}
+                        className="text-red-600 hover:text-red-800 p-1 transition-colors"
+                        title="削除"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 mb-2">
+                      投稿者: {restaurant.author || '匿名'}
+                    </p>
                   <div className="space-y-2 text-sm text-gray-600">
                     <p>
                       <span className="font-medium">カテゴリ:</span> {restaurant.category}
