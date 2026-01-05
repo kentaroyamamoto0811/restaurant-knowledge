@@ -88,6 +88,24 @@ Googleマップを表示するには、Google Maps Embed APIのキーが必要�
 
 店舗データは `data/restaurants.json` ファイルに保存されます。このファイルはGitで管理されるため、バージョン管理が可能です。
 
+## 開発時の注意事項
+
+### コミットメッセージの文字化け対策
+
+PowerShellで日本語のコミットメッセージを使用する場合、以下の設定を確認してください：
+
+```powershell
+# Gitのエンコーディング設定（既に設定済み）
+git config --global i18n.commitencoding utf-8
+git config --global core.quotepath false
+git config --global i18n.logoutputencoding utf-8
+
+# PowerShellのコードページをUTF-8に設定
+chcp 65001
+```
+
+これにより、日本語のコミットメッセージが正しく表示されます。
+
 ## ライセンス
 
 MIT
