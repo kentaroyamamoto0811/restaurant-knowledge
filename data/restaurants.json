@@ -27,5 +27,20 @@
     "author": "山本健太郎",
     "rating": 5,
     "createdAt": "2026-01-08T01:18:26.931Z"
+  },
+  {
+    "id": "1767952165999",
+    "name": "ねぎや",
+    "category": "居酒屋",
+    "nearestStation": "七隈線天神南",
+    "address": "福岡県福岡市中央区渡辺通5-1-22 コージープラス天神 4F",
+    "budget": "3,000〜5,000円",
+    "phone": "092-271-5662",
+    "shopUrl": "https://tabelog.com/fukuoka/A4001/A400103/40045283/",
+    "comment": "知る人ぞ知るお店！高コスパな水炊きコースは3,500円！",
+    "urlLink": " http://www.negiya.net/",
+    "author": "山本健太郎",
+    "rating": 4,
+    "createdAt": "2026-01-09T09:49:25.999Z"
   }
 ]
