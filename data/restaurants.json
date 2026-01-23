@@ -57,5 +57,20 @@
     "author": "山本健太郎",
     "rating": 5,
     "createdAt": "2026-01-22T14:12:11.311Z"
+  },
+  {
+    "id": "1769137822198",
+    "name": "Kikura（キクラ）",
+    "category": "居酒屋",
+    "nearestStation": "博多駅",
+    "address": "福岡県福岡市博多区博多駅東1-1-33 はかた近代ビル B1F",
+    "budget": "",
+    "phone": "",
+    "shopUrl": "https://tabelog.com/fukuoka/A4001/A400101/40025185/",
+    "comment": "",
+    "urlLink": "",
+    "author": "匿名",
+    "rating": 0,
+    "createdAt": "2026-01-23T03:10:22.198Z"
   }
 ]
